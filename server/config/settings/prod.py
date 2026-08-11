@@ -15,6 +15,6 @@ DATABASES = {
         "USER": Config.USER,
         "PASSWORD": Config.PASSWORD,
         "HOST": Config.HOST,
-        "PORT": Config.PORT
+        "PORT": 5432
     }
 }
