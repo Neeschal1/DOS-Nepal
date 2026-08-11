@@ -4,7 +4,7 @@ from .base import *
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DEBUG = True
-ALLOWED_HOSTS = ["dosnplwebserver.onrender.com", "server.dosnpl.com", "www.dosnpl.com", "dosnpl.com"]
+ALLOWED_HOSTS = ["dos-nlp-2.onrender.com", "server.dosnpl.com", "www.dosnpl.com", "dosnpl.com"]
 
 ASGI_APPLICATION = 'config.asgi.application'
 
