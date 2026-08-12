@@ -75,7 +75,12 @@ CORS_ALLOW_METHODS = (
 )
 
 CORS_ALLOW_ALL_ORIGINS = True
-CSRF_TRUSTED_ORIGINS = ["https://dos-nlp-2.onrender.com/", "https://server.dosnpl.com"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://dos-nlp-2.onrender.com",
+    "https://server.dosnpl.com",
+    "https://www.dosnpl.com",
+    "https://dosnpl.com",
+]
 
 
 REST_FRAMEWORK = {
