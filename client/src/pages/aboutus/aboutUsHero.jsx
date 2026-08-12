@@ -5,10 +5,10 @@ import Fonts from "../../utils/fontsconfig";
 
 const AboutUsHero = () => {
     const backgroundImages = [
-    "https://res.cloudinary.com/dlzx671ck/image/upload/v1784798922/IMG-20250919-WA0450_rkylal.jpg",
-    "https://res.cloudinary.com/dlzx671ck/image/upload/v1784798922/IMG-20250919-WA0444_ixdul6.jpg",
-    "https://res.cloudinary.com/dlzx671ck/image/upload/v1784798916/FB_IMG_1751804065936_xoeg2b.jpg",
-    "https://res.cloudinary.com/dlzx671ck/image/upload/v1784798915/FB_IMG_1751803959697_hrzool.jpg"
+      "https://res.cloudinary.com/ffzuvvv6/image/upload/v1786442298/IMG-20250919-WA0450.jpg",
+      "https://res.cloudinary.com/ffzuvvv6/image/upload/v1786442284/FB_IMG_1751804065936.jpg",
+      "https://res.cloudinary.com/ffzuvvv6/image/upload/v1786442282/FB_IMG_1751804027348.jpg",
+      "https://res.cloudinary.com/ffzuvvv6/image/upload/v1786442280/FB_IMG_1751803904375.jpg",
   ];
 
   const [currentImage, setCurrentImage] = useState(0);
