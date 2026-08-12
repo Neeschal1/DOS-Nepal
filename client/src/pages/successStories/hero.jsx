@@ -9,10 +9,10 @@ const SuccessStoriesHero = () => {
   const [backgroundImage, setBackgroundImage] = useState(0);
 
   const SuccessStudentsImages = [
-    "https://res.cloudinary.com/dlzx671ck/image/upload/v1784798917/FB_IMG_1751804165780_tic4sn.jpg",
-    "https://res.cloudinary.com/dlzx671ck/image/upload/v1784798917/FB_IMG_1751804157640_ykwfyd.jpg",
-    "https://res.cloudinary.com/dlzx671ck/image/upload/v1784798919/IMG-20250713-WA0003_biuhxs.jpg",
-    "https://res.cloudinary.com/dlzx671ck/image/upload/v1784798914/FB_IMG_1751803765410_judbjz.jpg"
+    "https://res.cloudinary.com/ffzuvvv6/image/upload/v1786442300/IMG-20251128-WA0093.jpg",
+    "https://res.cloudinary.com/ffzuvvv6/image/upload/v1786442299/20251128_140107.jpg",
+    "https://res.cloudinary.com/ffzuvvv6/image/upload/v1786442295/IMG-20250831-WA0039.jpg",
+    "https://res.cloudinary.com/ffzuvvv6/image/upload/v1786442293/IMG-20250713-WA0003.jpg"
   ];
 
   useEffect(() => {
