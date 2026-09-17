@@ -80,6 +80,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://server.dosnpl.com",
     "https://www.dosnpl.com",
     "https://dosnpl.com",
+    "http://localhost:8000/"
 ]
 
 

@@ -4,7 +4,7 @@ from .base import *
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = ["*"]
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
