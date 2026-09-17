@@ -17,3 +17,4 @@ class ResourceSerializer(serializers.ModelSerializer):
             'uploaded_at',
         ]
         read_only_fields = ['id', 'uploaded_at']
+

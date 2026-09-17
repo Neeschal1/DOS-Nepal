@@ -1,79 +1,56 @@
-import React from "react";
-import Fonts from "../utils/fontsconfig";
-import CountUp from "react-countup";
+import React, { useRef } from "react";
+import { useCountUp } from "react-countup";
 import { useInView } from "react-intersection-observer";
+import Fonts from "../utils/fontsconfig";
 
-/**
- * StatsCard – Animated stat counter card with icon and trend
- */
-const StatsCard = ({
-  icon,
-  value,
-  label,
-  suffix = "+",
-  trend = null,
-  trendLabel = "",
-  gradient = "from-red-50 to-orange-50",
-  iconBg = "bg-red-100",
-  iconColor = "text-[#FF090C]",
-}) => {
-  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.3 });
+const StatsCard = ({ end, suffix = "", title }) => {
+  const countUpRef = useRef(null);
+
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.3,
+  });
+
+  useCountUp({
+    ref: countUpRef,
+    end: inView ? end : 0,
+    duration: 3,
+    separator: ",",
+  });
 
   return (
     <div
       ref={ref}
-      className={`
-        bg-gradient-to-br ${gradient}
-        rounded-2xl p-5 shadow-sm border border-white
-        hover:shadow-md transition-all duration-300
-        flex flex-col gap-3
-      `}
+      className="
+        flex flex-col items-center justify-center
+        bg-white
+        px-6 py-10
+        rounded-2xl
+        transition-all duration-300
+      "
     >
-      {/* Icon */}
-      {icon && (
-        <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center`}>
-          <span className={`${iconColor} text-xl`}>{icon}</span>
-        </div>
-      )}
-
-      {/* Value */}
-      <div>
-        <h3
-          style={Fonts.poppins.bold}
-          className="text-2xl md:text-3xl text-gray-900"
-        >
-          {inView ? (
-            <CountUp end={typeof value === "number" ? value : parseInt(value)} duration={2} suffix={suffix} />
-          ) : (
-            "0"
-          )}
-        </h3>
-        <p
-          style={Fonts.poppins.regular}
-          className="text-sm text-gray-500 mt-0.5"
-        >
-          {label}
-        </p>
+      {/* Animated Number */}
+      <div
+        className="flex items-baseline text-[#FF090C]"
+        style={{
+          ...Fonts.poppins.bold,
+          fontSize: "50px",
+        }}
+      >
+        <span ref={countUpRef}>0</span>
+        <span>{suffix}</span>
       </div>
 
-      {/* Trend */}
-      {trend !== null && (
-        <div className="flex items-center gap-1">
-          <span
-            style={Fonts.poppins.medium}
-            className={`text-xs ${trend >= 0 ? "text-green-600" : "text-red-500"}`}
-          >
-            {trend >= 0 ? "↑" : "↓"} {Math.abs(trend)}%
-          </span>
-          {trendLabel && (
-            <span style={Fonts.poppins.regular} className="text-xs text-gray-400">
-              {trendLabel}
-            </span>
-          )}
-        </div>
-      )}
+      {/* Title */}
+      <p
+        className="mt-3 text-gray-600 text-center"
+        style={Fonts.poppins.medium}
+      >
+        {title}
+      </p>
     </div>
   );
 };
 
 export default StatsCard;
+

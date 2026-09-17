@@ -10,3 +10,4 @@ class UserProfileAdmin(ModelAdmin):
     search_fields = ['user__first_name', 'user__last_name', 'user__email', 'phone_number']
     readonly_fields = ['enrolled_at', 'updated_at']
     ordering = ['-enrolled_at']
+

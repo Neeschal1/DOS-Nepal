@@ -3,20 +3,39 @@ from rest_framework import serializers
 from apps.accounts.models.entities import UserProfile
 
 
+# Credentials setup serializers
 # ── Credentials Setup (Step 1 of signup) ─────────────────────────────────────
 class UserAccountCredentialsSetupSerializer(serializers.Serializer):
     firstname = serializers.CharField()
     lastname = serializers.CharField()
     username = serializers.CharField()
     email = serializers.EmailField()
+    
 
+# OTP verification for entered credentials 
 
 # ── OTP Verification (Step 2 of signup) ──────────────────────────────────────
 class VerifyOTPSerializer(serializers.Serializer):
+    otp = serializers.CharField()
     otp = serializers.CharField(min_length=6, max_length=6)
     email = serializers.EmailField()
 
 
+# Account signup serializers
+class UserAccountSignupSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "first_name", "last_name", "username", "email", "password", "is_active"]
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "first_name": {"required": True},
+            "last_name": {"required": True},
+            "username": {"required": True},
+            "email": {"required": True},
+            "password": {"required": True, "write_only": True},
+            "is_active" : {"read_only": True}
+        }
+        
 # ── Full Signup (Step 3 – includes phone + domain) ───────────────────────────
 class UserAccountSignupSerializers(serializers.Serializer):
     first_name = serializers.CharField()
@@ -27,11 +46,13 @@ class UserAccountSignupSerializers(serializers.Serializer):
     phone_number = serializers.CharField(max_length=20)
     domain = serializers.ChoiceField(choices=['German', 'Korean', 'Accounting', 'Computer'])
 
+# Existing account login serializer
 
 # ── Login ─────────────────────────────────────────────────────────────────────
 class UserAccountLoginSerializers(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(style={'input_type': 'password'})
+    
 
 
 # ── User Profile ──────────────────────────────────────────────────────────────

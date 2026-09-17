@@ -96,3 +96,4 @@ class StudentAttemptSerializer(serializers.ModelSerializer):
             'submitted_at',
         ]
         read_only_fields = ['id', 'submitted_at']
+

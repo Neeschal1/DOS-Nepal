@@ -38,3 +38,4 @@ class Resource(models.Model):
 
     def __str__(self):
         return f"[{self.domain}] {self.title} ({self.resource_type})"
+

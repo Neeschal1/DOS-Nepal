@@ -43,3 +43,4 @@ class ResourceView(viewsets.ViewSet):
                 {'success': False, 'message': 'Something went wrong!', 'detail': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+

@@ -9,10 +9,17 @@ from apps.accounts.models.entities import UserProfile
 
 
 class UserAuth:
+    # initial credentials verification
 
     # ── Step 1: Verify credentials before sending OTP ─────────────────────────
     def _verifycredentials(self, firstname: str, lastname: str, username: str, email: str) -> Response:
         try:
+            userName = User.objects.filter(username=username).exists()
+            userEmail = User.objects.filter(email=email).exists()
+            
+            if userName == True or userEmail == True:
+                return Response({"message": "The entered username or email already exists! Try again with a different credentials :)"}, status=status.HTTP_400_BAD_REQUEST)
+            
             if User.objects.filter(username=username).exists():
                 return Response(
                     {"message": "Username already taken. Try a different one!"},
@@ -26,6 +33,12 @@ class UserAuth:
 
             fullname = f"{firstname} {lastname}"
             otp_services = SendOTP._send_sms(email, fullname)
+            
+            if otp_services['success'] == True:
+                return Response({"message": "OTP sent successfully to your entered email!"}, status=status.HTTP_200_OK)
+            
+            return Response({"message": "Failed to send OTP to entered email, Try again later!"}, status=status.HTTP_400_BAD_REQUEST)
+            
 
             if otp_services['success']:
                 return Response(
@@ -39,6 +52,10 @@ class UserAuth:
             )
 
         except Exception as e:
+            return Response({"Message": "Something went wrong!", "Exception": str(e)}, status=status.HTTP_417_EXPECTATION_FAILED)
+        
+    
+    # otp code verification
             return Response(
                 {"message": "Something went wrong!", "detail": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -47,6 +64,11 @@ class UserAuth:
     # ── Step 2: Verify OTP code ────────────────────────────────────────────────
     def _verifyotpcode(self, mail: str, entered_otp: str) -> Response:
         try:
+            userEmail = User.objects.filter(email=mail).exists()
+            
+            if userEmail == True:
+                return Response({"message": "An account already registered with the entered email!"}, status=status.HTTP_400_BAD_REQUEST)
+            
             if User.objects.filter(email=mail).exists():
                 return Response(
                     {"message": "An account is already registered with this email!"},
@@ -55,12 +77,24 @@ class UserAuth:
 
             otpcode = cache.get(f"userinfo_{mail}")
             if not otpcode:
+                return Response({"message": "OTP not found, or might have been expired. Please request a new one!"}, status=status.HTTP_404_NOT_FOUND)
+            
                 return Response(
                     {"message": "OTP expired or not found. Please request a new one!"},
                     status=status.HTTP_404_NOT_FOUND
                 )
 
             if otpcode["otp"] != entered_otp:
+                return Response({"message": "The entered OTP is incorrect. Please check the code correctly and try again!"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            credentials = {
+                "email": mail,
+                "status": True
+            }
+            cache.set(f"{mail}'s_activation_info", credentials, timeout=600)
+            
+            return Response({"message": "Your account is successfully verified :)"}, status=status.HTTP_202_ACCEPTED)
+            
                 return Response(
                     {"message": "Incorrect OTP. Please check and try again!"},
                     status=status.HTTP_400_BAD_REQUEST
@@ -75,6 +109,11 @@ class UserAuth:
             )
 
         except Exception as e:
+            return Response({"Message": "Something went wrong!", "Exception": str(e)}, status=status.HTTP_417_EXPECTATION_FAILED)
+    
+    
+    # new account registration
+    def _signup(self, firstName: str, LastName: str, email: str, userName: str, passWord: str) -> Response:
             return Response(
                 {"message": "Something went wrong!", "detail": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -92,6 +131,15 @@ class UserAuth:
         domain: str,
     ) -> Response:
         try:
+            not_a_unique_email = User.objects.filter(email=email).exists()
+            not_a_unique_username = User.objects.filter(username = userName).exists()
+            
+            if not_a_unique_email == True:
+                return Response({"Message": "An account with this email already exists."}, status=status.HTTP_409_CONFLICT)
+            
+            if not_a_unique_username == True:
+                return Response({"Message":"An account is already signed up with the entered phone number!"}, status=status.HTTP_409_CONFLICT)
+            
             # Uniqueness checks
             if User.objects.filter(email=email).exists():
                 return Response(
@@ -112,6 +160,7 @@ class UserAuth:
             # Create Django User
             user = User.objects.create(
                 first_name=firstName,
+                last_name=LastName,
                 last_name=lastName,
                 username=userName,
                 email=email,
@@ -130,6 +179,15 @@ class UserAuth:
             access_token = str(refresh.access_token)
             refresh_token = str(refresh)
 
+            response = Response({"message": "User signed up successfully :)", "userinfo": {"usersName: ": f"{firstName} {LastName}", "username: ": userName, "email: ": email},},status=status.HTTP_201_CREATED)
+
+            response.set_cookie(
+                key="accessToken",
+                value=access_token,
+                httponly=True,
+                secure=False,
+                samesite="Lax",
+                max_age=300,
             response = Response(
                 {
                     "message": "Account created successfully!",
@@ -146,10 +204,23 @@ class UserAuth:
                 status=status.HTTP_201_CREATED,
             )
 
+            response.set_cookie(
+                key="refreshToken",
+                value=refresh_token,
+                httponly=True,
+                secure=False,
+                samesite="Lax",
+                max_age=30 * 24 * 60 * 60,
+            )
             self._set_auth_cookies(response, access_token, refresh_token)
             return response
+        
 
         except Exception as e:
+            return Response({"Message": "Something went wrong!", "Exception": str(e)}, status=status.HTTP_417_EXPECTATION_FAILED)
+        
+    
+    # login an account
             return Response(
                 {"message": "Something went wrong!", "detail": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -159,8 +230,15 @@ class UserAuth:
     def _login(self, email: str, password: str) -> Response:
         try:
             try:
+                user = User.objects.get(email = email)
                 user = User.objects.select_related('profile').get(email=email)
             except User.DoesNotExist:
+                 return Response({"Message":"User didn't found with the email provided. So sorry for your inconvenience :("}, status=status.HTTP_404_NOT_FOUND)
+            
+            match_password = check_password(password, user.password)
+            if not match_password:
+                return Response({"Message":"Invalid Credentials. So Sorry :("}, status=status.HTTP_401_UNAUTHORIZED)
+            
                 return Response(
                     {"message": "No account found with this email address."},
                     status=status.HTTP_404_NOT_FOUND
@@ -175,6 +253,16 @@ class UserAuth:
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
             refresh_token = str(refresh)
+            
+            response = Response({"message":"Login successful :)"}, status=status.HTTP_202_ACCEPTED)
+            
+            response.set_cookie(
+                key="accessToken",
+                value=access_token,
+                httponly=True,
+                secure=False,
+                samesite="Lax",
+                max_age=300,
 
             # Build user info payload for the frontend
             profile = getattr(user, 'profile', None)
@@ -199,6 +287,14 @@ class UserAuth:
                 {"message": "Login successful!", "data": user_data},
                 status=status.HTTP_200_OK
             )
+            
+            response.set_cookie(
+                key="refreshToken",
+                value=refresh_token,
+                httponly=True,
+                secure=False,
+                samesite="Lax",
+                max_age=30 * 24 * 60 * 60,
 
             self._set_auth_cookies(response, access_token, refresh_token)
             return response
@@ -208,6 +304,10 @@ class UserAuth:
                 {"message": "Something went wrong!", "detail": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+            
+            if match_password:
+                return response
+            
 
     # ── Get Profile ────────────────────────────────────────────────────────────
     def _get_profile(self, user) -> Response:
@@ -231,6 +331,8 @@ class UserAuth:
             return Response({"success": True, "data": data}, status=status.HTTP_200_OK)
 
         except Exception as e:
+            return Response({"Message": "Something went wrong!", "Exception": e}, status=status.HTTP_417_EXPECTATION_FAILED)
+    
             return Response(
                 {"message": "Something went wrong!", "detail": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR

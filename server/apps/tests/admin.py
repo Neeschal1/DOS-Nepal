@@ -2,6 +2,7 @@ from django.contrib import admin
 from unfold.admin import ModelAdmin, TabularInline
 from apps.tests.models.entities import MockTest, Question, StudentAttempt
 
+# Register your models here.
 
 class QuestionInline(TabularInline):
     model = Question

@@ -13,10 +13,13 @@ from rest_framework import permissions
 # Swagger setup
 schema_view = get_schema_view(
    openapi.Info(
+      title="DOS Nepal",
       title="DOS Nepal API",
       default_version='v1',
+      description="An educational platform dedicated to helping students and professionals build successful careers through quality training. We offer expert-led courses in Accounting and German, Korean, and English language learning, empowering learners with practical skills, language proficiency, and career-focused education.",
       description="An educational platform dedicated to helping students and professionals build successful careers through quality training. Courses: German Language, Korean Language, Accounting Training, Computer Training.",
       terms_of_service="https://www.google.com/policies/terms/",
+      contact=openapi.Contact(email="contact@snippets.local"),
       contact=openapi.Contact(email="multisersk@gmail.com"),
       license=openapi.License(name="BSD License"),
    ),
@@ -24,18 +27,26 @@ schema_view = get_schema_view(
    permission_classes=(permissions.AllowAny,),
 )
 
+# Regular routings
 urlpatterns = [
+    # Admin setup
     # Admin
     path('admin/', admin.site.urls),
+    
+    # JWT pathway
 
     # JWT
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    
+    # installed local applications
 
     # App routes
     path('accounts/', include('apps.accounts.api.urls')),
     path('employees/', include('apps.employees.api.urls')),
     path('courses/', include('apps.courses.api.urls')),
+    
+    # swagger docs
     path('tests/', include('apps.tests.api.urls')),
 
     # Swagger docs

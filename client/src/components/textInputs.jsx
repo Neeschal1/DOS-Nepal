@@ -427,3 +427,4 @@ export const OTPInput = ({ value = "", onChange, error = "" }) => {
     </div>
   );
 };
+
