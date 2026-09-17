@@ -1,36 +1,77 @@
-import { useRef } from "react";
-import { useCountUp } from "react-countup";
+import React from "react";
 import Fonts from "../utils/fontsconfig";
+import CountUp from "react-countup";
+import { useInView } from "react-intersection-observer";
 
-const StatsCard = ({ end, suffix = "", title }) => {
-  const countUpRef = useRef(null);
-
-  useCountUp({
-    ref: countUpRef,
-    end,
-    duration: 3,
-    separator: ",",
-  });
+/**
+ * StatsCard – Animated stat counter card with icon and trend
+ */
+const StatsCard = ({
+  icon,
+  value,
+  label,
+  suffix = "+",
+  trend = null,
+  trendLabel = "",
+  gradient = "from-red-50 to-orange-50",
+  iconBg = "bg-red-100",
+  iconColor = "text-[#FF090C]",
+}) => {
+  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.3 });
 
   return (
-    <div className="flex flex-col items-center justify-center bg-white px-10 py-20">
-      <div
-        className="flex items-baseline text-[#FF090C]"
-        style={{
-          ...Fonts.poppins.bold,
-          fontSize: "50px",
-        }}
-      >
-        <span ref={countUpRef}></span>
-        <span>{suffix}</span>
+    <div
+      ref={ref}
+      className={`
+        bg-gradient-to-br ${gradient}
+        rounded-2xl p-5 shadow-sm border border-white
+        hover:shadow-md transition-all duration-300
+        flex flex-col gap-3
+      `}
+    >
+      {/* Icon */}
+      {icon && (
+        <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center`}>
+          <span className={`${iconColor} text-xl`}>{icon}</span>
+        </div>
+      )}
+
+      {/* Value */}
+      <div>
+        <h3
+          style={Fonts.poppins.bold}
+          className="text-2xl md:text-3xl text-gray-900"
+        >
+          {inView ? (
+            <CountUp end={typeof value === "number" ? value : parseInt(value)} duration={2} suffix={suffix} />
+          ) : (
+            "0"
+          )}
+        </h3>
+        <p
+          style={Fonts.poppins.regular}
+          className="text-sm text-gray-500 mt-0.5"
+        >
+          {label}
+        </p>
       </div>
 
-      <p
-        className="mt-3 text-gray-600 text-center"
-        style={Fonts.poppins.medium}
-      >
-        {title}
-      </p>
+      {/* Trend */}
+      {trend !== null && (
+        <div className="flex items-center gap-1">
+          <span
+            style={Fonts.poppins.medium}
+            className={`text-xs ${trend >= 0 ? "text-green-600" : "text-red-500"}`}
+          >
+            {trend >= 0 ? "↑" : "↓"} {Math.abs(trend)}%
+          </span>
+          {trendLabel && (
+            <span style={Fonts.poppins.regular} className="text-xs text-gray-400">
+              {trendLabel}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 };
